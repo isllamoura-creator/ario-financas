@@ -1,0 +1,494 @@
+{
+  "name": "PAGAMENTO ASAAS",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "6b784cde-9073-4a11-b7c9-7c438fb34130",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -144,
+        -48
+      ],
+      "id": "6b5e92ec-53d9-4b44-bafb-23f4d12c594a",
+      "name": "Webhook",
+      "webhookId": "6b784cde-9073-4a11-b7c9-7c438fb34130"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.asaas.com/v3/customers/{{ $json.body.payment.customer }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        64,
+        -48
+      ],
+      "id": "b2aa8a80-28a1-483d-90f8-3dbf720f5186",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "uodRALmrLuvhjKEp",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7674d35c-3fd6-428c-aed3-83458ff53bb9",
+              "leftValue": "={{ $('Webhook').item.json.body.event }}",
+              "rightValue": "PAYMENT_RECEIVED",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        304,
+        -64
+      ],
+      "id": "4e4c4b48-0c27-4b4f-ad14-c0f388f8e3ec",
+      "name": "pagamento aprovado?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "e2a1c98d-46c6-4662-aa1d-854f136ddfc9",
+              "leftValue": "={{ $('Webhook').first().json.body.subscription.cycle }}",
+              "rightValue": "YEARLY",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        928,
+        -176
+      ],
+      "id": "87566b9a-5326-47c2-a5e3-b0bd21043e4c",
+      "name": "É ANUAL?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "databaseId": 341131,
+        "tableId": 779378,
+        "rowId": "={{ $('Get many rows').item.json.id }}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": 6654758,
+              "fieldValue": "Ativo"
+            },
+            {
+              "fieldId": 7149928,
+              "fieldValue": "={{ $now.plus(30, 'days').toISO() }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        1328,
+        -720
+      ],
+      "id": "1027844d-f45d-4adb-8a70-e7a6022a9bd9",
+      "name": "ATUALIZA MENSAL",
+      "credentials": {
+        "baserowApi": {
+          "id": "SlFgUaqKQ3hMIGpE",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "databaseId": 341131,
+        "tableId": 779378,
+        "additionalOptions": {
+          "filters": {
+            "fields": [
+              {
+                "field": 7877963,
+                "value": "={{ $('Webhook').item.json.body.subscription.id }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        416,
+        160
+      ],
+      "id": "4cebedc1-9ece-48be-b1b6-210ab3a482c4",
+      "name": "contato já existe no bd?1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "baserowApi": {
+          "id": "SlFgUaqKQ3hMIGpE",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ae243eb6-6d9a-4f75-9d10-22754f69f70a",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        592,
+        288
+      ],
+      "id": "a0fc6a7f-2fc4-4484-9c8b-6cece4bf89d0",
+      "name": "se existe1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "databaseId": 341131,
+        "tableId": 779378,
+        "rowId": "={{ $('Get many rows').item.json.id }}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": 6654758,
+              "fieldValue": "Ativo"
+            },
+            {
+              "fieldId": 7149928,
+              "fieldValue": "=={{ $now.plus(1, 'years').toISO() }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        1152,
+        -128
+      ],
+      "id": "183900cf-e10b-4a7f-91d9-7c116c473dd5",
+      "name": "ATUALIZA ANUAL",
+      "credentials": {
+        "baserowApi": {
+          "id": "SlFgUaqKQ3hMIGpE",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "ariofinancas@gmail.com",
+        "toEmail": "={{ $('Get many rows').item.json.EMAIL }}",
+        "subject": "ASSINATURA CONFIRMADA",
+        "emailFormat": "text",
+        "text": "=Parabéns,{{ $('HTTP Request').item.json.name }}!\n\nSua assinatura Ário está confirmada!\n\nVocê acaba de dar mais um passo em direção a sua liberdade financeira.\n\nChame o Ário no Zap e inicie a sua jornada agora mesmo: ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1552,
+        -720
+      ],
+      "id": "bd96784b-e1fa-4a88-8175-08e07bd8faa0",
+      "name": "Send email",
+      "webhookId": "0843e7d6-8490-48b7-8b63-2ff4b28947b5",
+      "credentials": {
+        "smtp": {
+          "id": "TdpUIfws681fya7c",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "ariofinancas@gmail.com",
+        "toEmail": "={{ $('Get many rows').item.json.EMAIL }}",
+        "subject": "ASSINATURA CONFIRMADA",
+        "emailFormat": "text",
+        "text": "=Parabéns,{{ $('HTTP Request').item.json.name }}!\n\nSua assinatura Ário está confirmada!\n\nVocê acaba de dar mais um passo em direção a sua liberdade financeira.\n\nChame o Ário no Zap e inicie a sua jornada agora mesmo: ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1456,
+        -112
+      ],
+      "id": "a3f700a7-c6f1-4161-bd98-a0feff8b8622",
+      "name": "Send email1",
+      "webhookId": "0843e7d6-8490-48b7-8b63-2ff4b28947b5",
+      "credentials": {
+        "smtp": {
+          "id": "TdpUIfws681fya7c",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "databaseId": 341131,
+        "tableId": 779378,
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": 7877963,
+              "fieldValue": "={{ $('Webhook').item.json.body.subscription.customer }}"
+            },
+            {
+              "fieldId": 6636960,
+              "fieldValue": "=55{{ $('HTTP Request').item.json.data[0].mobilePhone }}"
+            },
+            {
+              "fieldId": 7877985,
+              "fieldValue": "={{ $('HTTP Request').item.json.data[0].email }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        816,
+        416
+      ],
+      "id": "81c1e2b3-e791-4de0-9233-f82434079ce9",
+      "name": "Create a row",
+      "executeOnce": true,
+      "credentials": {
+        "baserowApi": {
+          "id": "SlFgUaqKQ3hMIGpE",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "databaseId": 341131,
+        "tableId": 779378,
+        "additionalOptions": {
+          "filters": {
+            "fields": [
+              {
+                "field": 7877963,
+                "value": "={{ $('Webhook').item.json.body.payment.customer }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        608,
+        -64
+      ],
+      "id": "2941dc25-bd0b-46ac-9dd0-c3127a6adcbe",
+      "name": "Get many rows",
+      "credentials": {
+        "baserowApi": {
+          "id": "SlFgUaqKQ3hMIGpE",
+          "name": "Baserow account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "pagamento aprovado?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pagamento aprovado?": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "contato já existe no bd?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "É ANUAL?": {
+      "main": [
+        [
+          {
+            "node": "ATUALIZA ANUAL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ATUALIZA MENSAL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "contato já existe no bd?1": {
+      "main": [
+        [
+          {
+            "node": "se existe1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "se existe1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ATUALIZA MENSAL": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ATUALIZA ANUAL": {
+      "main": [
+        [
+          {
+            "node": "Send email1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "É ANUAL?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "JoJiqbJ7R__tqCMVQEMsE"
+  },
+  "versionId": "bd1b0412-9ea2-4892-ba36-cbe1fc66630a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8ba6d499a3dd9abf9951dd42529ade32ae8ce3cffcbdd430efb0cc7732a39e29"
+  },
+  "id": "sA3zns_vqXPF-UawBKzfC",
+  "tags": []
+}

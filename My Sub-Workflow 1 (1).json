@@ -1,0 +1,153 @@
+{
+  "name": "My Sub-Workflow 1",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "evento"
+            },
+            {
+              "name": "data inicial",
+              "type": "any"
+            },
+            {
+              "name": "data final",
+              "type": "any"
+            },
+            {
+              "name": "whatsapp",
+              "type": "any"
+            },
+            {
+              "name": "lembrete 01",
+              "type": "any"
+            },
+            {
+              "name": "lembrete 02",
+              "type": "any"
+            },
+            {
+              "name": "periodicidade",
+              "type": "any"
+            }
+          ]
+        }
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        272,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "databaseId": 418966,
+        "tableId": 934213,
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": 8113901,
+              "fieldValue": "={{ $json.whatsapp }}"
+            },
+            {
+              "fieldId": 8113903,
+              "fieldValue": "={{ $json[\"data inicial\"].toDate('dd/MM/yyyy HH:mm').toISO() }}"
+            },
+            {
+              "fieldId": 8130442,
+              "fieldValue": "={{ $json[\"data final\"].toDate('dd/MM/yyyy HH:mm').toISO() }}"
+            },
+            {
+              "fieldId": 8113908,
+              "fieldValue": "={{ $json.evento }}"
+            },
+            {
+              "fieldId": 8116539,
+              "fieldValue": "={{ $json[\"lembrete 01\"].toDate('dd/MM/yyyy HH:mm').toISO() }}"
+            },
+            {
+              "fieldId": 8116543,
+              "fieldValue": "={{ $json[\"lembrete 02\"].toDate('dd/MM/yyyy HH:mm').toISO() }}"
+            },
+            {
+              "fieldId": 8130559,
+              "fieldValue": "={{ $json.periodicidade }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        480,
+        336
+      ],
+      "id": "434a070a-5422-4083-b1b6-98509b8f7810",
+      "name": "Create a row",
+      "credentials": {
+        "baserowApi": {
+          "id": "SlFgUaqKQ3hMIGpE",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"resultado\": \"sucesso\",\n  \"mensagem\": \"Evento gravado com sucesso.\",\n  \"detalhes\": {\n    \"evento\": \"={{ $('When Executed by Another Workflow').item.json.evento }}\",\n    \"data\": \"={{ $('When Executed by Another Workflow').item.json.data }}\",\n    \"hora\": \"={{ $('When Executed by Another Workflow').item.json.hora }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        736,
+        352
+      ],
+      "id": "2241da8d-a489-4586-9fae-c22dc66b1d55",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "a3fb74ee-9802-463e-b136-342b4e2e2182",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8ba6d499a3dd9abf9951dd42529ade32ae8ce3cffcbdd430efb0cc7732a39e29"
+  },
+  "id": "F4G0OCZZYNz6rYlx",
+  "tags": []
+}

@@ -1,0 +1,333 @@
+{
+  "name": "NÓ DE LEMBRETES",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 19
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "87919c33-6ff1-48ca-a35f-a97d32593caf",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "databaseId": 341131,
+        "tableId": 779378,
+        "additionalOptions": {
+          "filters": {
+            "fields": [
+              {
+                "field": 8002856,
+                "operator": "date_equal",
+                "value": "={{ $now.minus({ days: 7 }).toFormat('yyyy-MM-dd') }}"
+              },
+              {
+                "field": 6654758,
+                "value": "Teste Gratuito"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.baserow",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "deddb903-27e4-4a35-a154-a1c138b9f84d",
+      "name": "Get many rows",
+      "credentials": {
+        "baserowApi": {
+          "id": "SlFgUaqKQ3hMIGpE",
+          "name": "Baserow account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n  // Sorteia o número 0, 1 ou 2 aleatoriamente\n  item.json.rota_sorteada = Math.floor(Math.random() * 3);\n}\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "34fc1b76-8e8c-45fc-af00-51d72ebf5c6a",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "phoneNumberId": "1031388123395378",
+        "recipientPhoneNumber": "={{ $json.Whatsapp_ID }}",
+        "template": "lembrete_de_lancamento_01|pt_BR",
+        "components": {
+          "component": [
+            {
+              "type": "header",
+              "headerParameters": {
+                "parameter": [
+                  {
+                    "type": "image",
+                    "imageLink": "https://drive.google.com/uc?export=download&id=1PNDuTEZkNLBsddj2KzFxJhmn4JBaW0YE"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        928,
+        -128
+      ],
+      "id": "04702e80-5989-4a09-a86c-4c1c8be0c6d9",
+      "name": "Send template",
+      "webhookId": "804c1b5f-0f09-47b9-bd2c-531afaab8560",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "C49yjUQnHsZ5bFE2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.rota_sorteada }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "id": "34ec8b6f-04d1-4b70-b98e-e5177c19acfa"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "1"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "8a59813f-70bb-450c-bbd9-25ccc1c3a870",
+                    "leftValue": "={{ $json.rota_sorteada }}",
+                    "rightValue": 2,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "2"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "7564c656-afd1-4f79-9dd8-cc6f0e25d23d",
+                    "leftValue": "={{ $json.rota_sorteada }}",
+                    "rightValue": 0,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "02876f2a-de7c-43d8-87fa-bf70433ad394",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "phoneNumberId": "1031388123395378",
+        "recipientPhoneNumber": "={{ $json.Whatsapp_ID }}",
+        "template": "lembrete_de_lancamento_desconfiado|pt_BR",
+        "components": {
+          "component": [
+            {
+              "type": "header",
+              "headerParameters": {
+                "parameter": [
+                  {
+                    "type": "image",
+                    "imageLink": "https://drive.google.com/uc?export=download&id=16h2biAZUinT9ligP__9zkG92RTWZR5Sa"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        48
+      ],
+      "id": "564965c3-757a-4aba-aec6-7afa253ae4c6",
+      "name": "Send template1",
+      "webhookId": "804c1b5f-0f09-47b9-bd2c-531afaab8560",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "C49yjUQnHsZ5bFE2",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "phoneNumberId": "1031388123395378",
+        "recipientPhoneNumber": "={{ $('Get many rows').first().json.Whatsapp_ID }}",
+        "template": "lembrete_de_lancamento_pobreza|pt_BR"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        912,
+        208
+      ],
+      "id": "e8175717-b750-4ff0-a524-ac2089bfd7d6",
+      "name": "Send template2",
+      "webhookId": "804c1b5f-0f09-47b9-bd2c-531afaab8560",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "C49yjUQnHsZ5bFE2",
+          "name": "WhatsApp account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send template",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send template1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send template2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "JoJiqbJ7R__tqCMVQEMsE"
+  },
+  "versionId": "7c4b90c0-c149-4d42-a611-2933187a6a29",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8ba6d499a3dd9abf9951dd42529ade32ae8ce3cffcbdd430efb0cc7732a39e29"
+  },
+  "id": "I8i2S-PHe7Zqh91D4CyOC",
+  "tags": []
+}
